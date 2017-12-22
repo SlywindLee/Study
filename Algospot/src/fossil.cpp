@@ -8,11 +8,25 @@
 #include <iostream>
 using namespace std;
 
+
+int fossil(){
+
+	int n, m;
+	cin >> n >> m;
+
+
+
+	return 0;
+}
+
+
+
+// main
+
 int main(){
 
-	cout << "Hello Git Hub" << endl;
+	cout << "Hello Linux!!" << endl;
 
-	cout << "Git Hub in Linux" << endl;
 
 	return 0;
 }
