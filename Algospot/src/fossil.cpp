@@ -11,22 +11,58 @@
 #include <algorithm>
 using namespace std;
 
+/* Global Variables */
+
+int n, m;
+vector< pair<double, double> > upper[2], lower[2];
+
 /* Functions */
 
+double max(double a, double b){
+	return (a > b) ? a : b;
+}
 
-
-
-
-
+double min(double a, double b){
+	return (a < b) ? a : b;
+}
 
 bool compare_pair(pair<double, double> a, pair<double, double> b){
 	return a.first < b.first;
 }
 
-void fossil(){
+double getheight(vector< pair<double, double> > lines, int x){
 
-	int n, m;
-	vector< pair<double, double> > upper[2], lower[2];
+	// 껍질에서 해당 X좌표에 해당하는 Y좌표를 찾는다.
+	// 바이너리 서치로 구현하면 더 빨라질 것.
+
+	for(int i = 1; i < lines; i++)
+		if(lines[i].first > x){
+			double a = lines[i - 1].first, b = lines[i - 1].second, c = lines[i].first, d = lines[i].second;
+			return ((d - b) / (c - a)) * (x - a) + b;
+		}
+
+	return 0;
+}
+
+double vertical(int x){
+
+	// upper 중엔 작은것, lower 중엔 큰것
+
+	double u0 = getheight(upper[0], x), u1 = getheight(upper[1], x);
+	double l0 = getheight(lower[0], x), l1 = getheight(lower[1], x);
+
+	return min(u0, u1) - max(l0, l1);
+}
+
+
+
+
+
+
+
+
+
+int fossil(){
 
 	cin >> n >> m;
 
@@ -94,9 +130,13 @@ void fossil(){
 	left = (upper[0].front().first > upper[1].front().first) ? upper[0].front().first : upper[1].front().first;
 	right = (upper[0].back().first < upper[1].back().first) ? upper[0].back().first : upper[1].back().first;
 
+	if(right < left) return -1;
 
 
-	return;
+
+
+
+	return 0;
 }
 
 /* Main */
