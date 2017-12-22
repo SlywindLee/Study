@@ -30,15 +30,15 @@ void fossil(){
 
 	cin >> n >> m;
 
-	// Ã¹¹øÂ° Á¡Àº ÀúÀå
+	// ì²«ë²ˆì§¸ ì ì€ ì €ì¥
 
 	double x, y, prevx, firstx, firsty;
 
 	cin >> firstx >> firsty;
 	prevx = firstx;
 
-	// ¹Ù·Î Àü Á¡º¸´Ù ¿ŞÂÊÀ¸·Î ÀÌµ¿ ½Ã upper, ¿À¸¥ÂÊÀ¸·Î ÀÌµ¿ ½Ã lower
-	// °°Àº (¼öÁ÷¼± »ó¿¡ ÀÖ´Â) °æ¿ì´Â ÀÏ´Ü upper·Î ¼³Á¤
+	// ë°”ë¡œ ì „ ì ë³´ë‹¤ ì™¼ìª½ìœ¼ë¡œ ì´ë™ ì‹œ upper, ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì´ë™ ì‹œ lower
+	// ê°™ì€ (ìˆ˜ì§ì„  ìƒì— ìˆëŠ”) ê²½ìš°ëŠ” ì¼ë‹¨ upperë¡œ ì„¤ì •
 
 	for(int i = 1; i < n; i++){
 		cin >> x >> y;
@@ -50,13 +50,13 @@ void fossil(){
 	if(firstx <= prevx) upper[0].push_back(make_pair(firstx, firsty));
 	else lower[0].push_back(make_pair(firstx, firsty));
 
-	// Ã¹¹øÂ° Á¡Àº ÀúÀå
+	// ì²«ë²ˆì§¸ ì ì€ ì €ì¥
 
 	cin >> firstx >> firsty;
 	prevx = firstx;
 
-	// ¹Ù·Î Àü Á¡º¸´Ù ¿ŞÂÊÀ¸·Î ÀÌµ¿ ½Ã upper, ¿À¸¥ÂÊÀ¸·Î ÀÌµ¿ ½Ã lower
-	// °°Àº (¼öÁ÷¼± »ó¿¡ ÀÖ´Â) °æ¿ì´Â ÀÏ´Ü upper·Î ¼³Á¤
+	// ë°”ë¡œ ì „ ì ë³´ë‹¤ ì™¼ìª½ìœ¼ë¡œ ì´ë™ ì‹œ upper, ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì´ë™ ì‹œ lower
+	// ê°™ì€ (ìˆ˜ì§ì„  ìƒì— ìˆëŠ”) ê²½ìš°ëŠ” ì¼ë‹¨ upperë¡œ ì„¤ì •
 
 	for(int i = 1; i < m; i++){
 		cin >> x >> y;
@@ -68,12 +68,12 @@ void fossil(){
 	if(firstx <= prevx) upper[1].push_back(make_pair(firstx, firsty));
 	else lower[1].push_back(make_pair(firstx, firsty));
 
-	// ºĞ·ù ¿Ï·á -> Upper ºÎÅÍ Á¤·Ä
+	// ë¶„ë¥˜ ì™„ë£Œ -> Upper ë¶€í„° ì •ë ¬
 
 	sort(upper[0].begin(), upper[0].end(), compare_pair);
 	sort(upper[1].begin(), upper[1].end(), compare_pair);
 
-	// ¿ŞÂÊ ³¡ Á¡ Ãß°¡ ÈÄ lower Á¤·Ä
+	// ì™¼ìª½ ë ì  ì¶”ê°€ í›„ lower ì •ë ¬
 
 	lower[0].push_back(upper[0][0]);
 	lower[1].push_back(upper[1][0]);
@@ -81,13 +81,13 @@ void fossil(){
 	sort(lower[0].begin(), lower[0].end(), compare_pair);
 	sort(lower[1].begin(), lower[1].end(), compare_pair);
 
-	// ¿À¸¥ÂÊ ³¡ Á¡ Ãß°¡
+	// ì˜¤ë¥¸ìª½ ë ì  ì¶”ê°€
 
 	upper[0].push_back(lower[0].back());
 	upper[1].push_back(lower[1].back());
 
-	// µÎ µµÇüÀÇ °ãÄ¡´Â X ¹üÀ§ Ã£±â
-	// ¿ŞÂÊÀº ´õ Å« Á¡, ¿À¸¥ÂÊÀº ´õ ÀÛÀº Á¡
+	// ë‘ ë„í˜•ì˜ ê²¹ì¹˜ëŠ” X ë²”ìœ„ ì°¾ê¸°
+	// ì™¼ìª½ì€ ë” í° ì , ì˜¤ë¥¸ìª½ì€ ë” ì‘ì€ ì 
 
 	double left, right;
 
