@@ -30,39 +30,43 @@ bool compare_pair(pair<double, double> a, pair<double, double> b){
 	return a.first < b.first;
 }
 
-double getheight(vector< pair<double, double> > lines, int x){
+
+double getheight(vector< pair<double, double> > lines, double x){
 
 	// 껍질에서 해당 X좌표에 해당하는 Y좌표를 찾는다.
 	// 바이너리 서치로 구현하면 더 빨라질 것.
 
-	for(int i = 1; i < lines; i++)
+	for(size_t i = 1; i < lines.size(); i++)
 		if(lines[i].first > x){
 			double a = lines[i - 1].first, b = lines[i - 1].second, c = lines[i].first, d = lines[i].second;
 			return ((d - b) / (c - a)) * (x - a) + b;
 		}
 
-	return 0;
+	return 0.0;
 }
 
-double vertical(int x){
+double vertical(double x){
 
 	// upper 중엔 작은것, lower 중엔 큰것
 
 	double u0 = getheight(upper[0], x), u1 = getheight(upper[1], x);
 	double l0 = getheight(lower[0], x), l1 = getheight(lower[1], x);
 
+
 	return min(u0, u1) - max(l0, l1);
 }
 
 
+// fossil
 
+double fossil(){
 
+	// 전역변수 초기화
 
+	upper[0].clear(); upper[1].clear();
+	lower[0].clear(); lower[1].clear();
 
-
-
-
-int fossil(){
+	// 인풋
 
 	cin >> n >> m;
 
@@ -132,18 +136,33 @@ int fossil(){
 
 	if(right < left) return -1;
 
+	// 삼분검색
 
 
+	for(int i = 0; i < 100; i++){
 
+		double aab = (left * 2.0 + right) / 3.0;
+		double abb = (left + right * 2.0) / 3.0;
 
-	return 0;
+		if(vertical(aab) < vertical(abb))
+			left = aab;
+		else
+			right = abb;
+	}
+
+	return max(0.0, vertical(right));
 }
 
 /* Main */
 
 int main(){
 
-	fossil();
+	cout.precision(10);
+	int c; cin >> c;
+
+	while(c-- > 0){
+		cout << fossil() << endl;
+	}
 
 	return 0;
 }
