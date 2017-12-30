@@ -153,8 +153,9 @@ double fossil(){
 	return max(0.0, vertical(right));
 }
 
-/* Main
+/* Main */
 
+/*
 int main(){
 
 	cout.precision(10);
@@ -167,4 +168,4 @@ int main(){
 	return 0;
 }
 
- */
+*/
