@@ -139,7 +139,7 @@ int fossil(){
 	return 0;
 }
 
-/* Main */
+/* Main
 
 int main(){
 
@@ -147,3 +147,5 @@ int main(){
 
 	return 0;
 }
+
+ */
