@@ -18,6 +18,7 @@ void calcNFactor(vector<int>& minFactor, vector<int>& nMinFactor, vector<int>& n
 
 		// 소수면 소인수의 개수는 2 (2로 생성시 초기화)
 
+
 		if(minFactor[i] == i) continue;
 
 		// 아니라면 minFactor로 나눈 결과를 이용하여 계산한다.
@@ -49,9 +50,11 @@ void calcMinFactor(vector<int>& minFactor, vector<int>& nMinFactor){
 
 		// 아직 업데이트가 안됐다는 사실은 i가 min factor라는 뜻
 
-		for(int j = i * i; j > 0 && j < MAX; j += i){
+		for(long long j = (long long)i * i; j > 0 && j < MAX; j += i){
 
 			if(minFactor[j] != 0) continue;
+
+			if(i == 92683) cout << "!! : " << j << endl;
 
 			minFactor[j] = i;
 
@@ -73,7 +76,6 @@ void calcMinFactor(vector<int>& minFactor, vector<int>& nMinFactor){
 
 int main(){
 
-
 	vector<int> minFactor(MAX, 0);
 	vector<int> nMinFactor(MAX, 1);
 	vector<int> nFactor(MAX, 2);
@@ -82,8 +84,6 @@ int main(){
 
 	calcMinFactor(minFactor, nMinFactor);
 	calcNFactor(minFactor, nMinFactor, nFactor);
-
-	cout << nFactor[18] << endl;
 
 	// 문제 처리
 
