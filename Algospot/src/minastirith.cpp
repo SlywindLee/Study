@@ -4,7 +4,7 @@
  *  Created on: 2018. 1. 21.
  *      Author: slywind
  *
- *      Hello
+ *
  */
 
 #include <iostream>
