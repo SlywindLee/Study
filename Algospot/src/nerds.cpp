@@ -83,6 +83,7 @@ bool polygonIntersects(const vector<vector2>& p, const vector<vector2>& q);
 
 /* Main */
 
+/*
 int main() {
 
 	int c; cin >> c;
@@ -90,7 +91,7 @@ int main() {
 	while (c-- > 0) {
 		vector<vector2> points[2];
 
-		/* Get Inputs */
+		// Get Inputs
 
 		int n, a;
 		double b, c;
@@ -102,7 +103,7 @@ int main() {
 			points[a].push_back(vector2(b, c));
 		}
 
-		/* Make Convex Hull */
+		// Make Convex Hull
 
 		vector<vector2> hull[2];
 
@@ -117,6 +118,8 @@ int main() {
 
 	return 0;
 }
+
+*/
 
 /* Functions */
 
