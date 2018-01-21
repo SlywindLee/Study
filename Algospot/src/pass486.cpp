@@ -74,6 +74,7 @@ void calcMinFactor(vector<int>& minFactor, vector<int>& nMinFactor){
  * 3. 소인수분해를 사용하여 각 수의 인수 개수를 구한다. (nFactor)
  */
 
+/*
 int main(){
 
 	vector<int> minFactor(MAX, 0);
@@ -103,3 +104,5 @@ int main(){
 
 	return 0;
 }
+
+*/

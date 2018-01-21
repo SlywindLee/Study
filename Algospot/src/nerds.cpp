@@ -1,71 +1,213 @@
-/* Algospot : Nerds */
-
 #include <iostream>
 #include <vector>
+#include <map>
 #include <utility>
+#include <algorithm>
+#include <cmath>
 using namespace std;
+
+/* def of vector */
+
+const double PI = 2.0 * acos(0.0);
+
+struct vector2 {
+
+	double x, y;
+
+	explicit vector2(double x_ = 0, double y_ = 0) : x(x_), y(y_) {};
+
+	// comparison
+
+	bool operator == (const vector2& rhs) const {
+		return x == rhs.x && y == rhs.y;
+	}
+
+	bool operator < (const vector2& rhs) const {
+		return x != rhs.x ? x < rhs.x : y < rhs.y;
+	}
+
+	// plus and minus, multiplication
+
+	vector2 operator + (const vector2& rhs) const {
+		return vector2(x + rhs.x, y + rhs.y);
+	}
+
+	vector2 operator - (const vector2& rhs) const {
+		return vector2(x - rhs.x, y - rhs.y);
+	}
+
+	vector2 operator * (double rhs) const {
+		return vector2(x * rhs, y * rhs);
+	}
+
+	//
+
+	double norm() const { return hypot(x, y); }
+
+	vector2 normalize() const {
+		return vector2(x / norm(), y / norm());
+	}
+
+	double polar() const { return fmod(atan2(y, x) + 2 * PI, 2 * PI); }
+
+	double dot(const vector2& rhs) const {
+		return x * rhs.x + y * rhs.y;
+	}
+
+	double cross(const vector2& rhs) const {
+		return x * rhs.y - rhs.x * y;
+	}
+
+	vector2 project(const vector2& rhs) const {
+		vector2 r = rhs.normalize();
+		return r * r.dot(*this);
+	}
+
+};
+
+double ccw(vector2 a, vector2 b) {
+	return a.cross(b);
+}
+
+double ccw(vector2 p, vector2 a, vector2 b) {
+	return ccw(a - p, b - p);
+}
+
+
+/* Prototypes */
+
+void makeConvexHull(vector<vector2>& points, vector<vector2>& hull);
+bool isInside(vector2 q, const vector<vector2>& p);
+bool segmentIntersects(vector2 a, vector2 b, vector2 c, vector2 d);
+bool polygonIntersects(const vector<vector2>& p, const vector<vector2>& q);
 
 /* Main */
 
-int main(){
+int main() {
 
-	vector< pair<int, int> > points[2], hull[2];
-	
-	// get inputs
-	
-	int n; cin >> n;
-	for(int i = 0; i < n; i++){
-		int a, b, c;
-		cin >> a >> b >> c;
-		points[a].push_back(make_pair(b, c));
+	int c; cin >> c;
+
+	while (c-- > 0) {
+		vector<vector2> points[2];
+
+		/* Get Inputs */
+
+		int n, a;
+		double b, c;
+
+		cin >> n;
+
+		for (int i = 0; i < n; i++) {
+			cin >> a >> b >> c;
+			points[a].push_back(vector2(b, c));
+		}
+
+		/* Make Convex Hull */
+
+		vector<vector2> hull[2];
+
+		makeConvexHull(points[0], hull[0]);
+		makeConvexHull(points[1], hull[1]);
+
+		if (polygonIntersects(hull[0], hull[1]))
+			cout << "THEORY IS INVALID" << endl;
+		else
+			cout << "THEORY HOLDS" << endl;
 	}
-	
-	// make hull
-	
-	
-	
-	
-	
+
 	return 0;
 }
 
 /* Functions */
 
-/* Graham Scan */
+void makeConvexHull(vector<vector2>& points, vector<vector2>& hull) {
 
-void grahamScan(vector< pair<int, int> > points, vector< pair<int, int> > hull){
+	// find the lowest point & add in the hull
 
+	int lowest = 0;
 
-	// 1. y좌표가 가장 작은 점(P0)을 찾는다.
+	for (size_t i = 1; i < points.size(); i++)
+		if (points[lowest].y > points[i].y) lowest = i;
 
+	hull.push_back(points[lowest]);
 
-	// 2. P0를 기준으로 각 점들의 코사인값를 구한다.
+	points.erase(points.begin() + lowest);
 
+	// sort by angular
 
-	// 3. 코사인 값으로 내림차순 정렬한다.
+	vector< pair<double, vector2> > sorted;
 
+	for (size_t i = 0; i < points.size(); i++)
+		sorted.push_back( make_pair((points[i] - hull[0]).polar(), points[i]) );
 
-	// 4. 앞에서부터 P0, P1 스택(hull)에 추가
+	sort(sorted.begin(), sorted.end());
 
+	// complete convex hull
 
-	/*
+	hull.push_back(sorted[0].second);
+	int n = 1;
 
-2. 스택의 최상단에 있던 점을 P2, 그 아래에 있던 점을 P1, 다음 점을 P3이라 할 때, P3이 벡터 P1P2보다 왼쪽에 있는지 오른쪽에 있는지 체크한다. (단, 스택에 점이 1개만 있다면 건너뛰고 4번으로 간다.)
+	for (size_t i = 1; i < sorted.size(); i++) {
 
-3. P3이 오른쪽에 있다면, 스택에서 P2를 제거하고 2번으로 돌아간다.
+		if (ccw(hull[n - 1], hull[n], sorted[i].second) <= 0) {
+			hull.pop_back(); n--;
+		}
 
-4. P3을 스택에 넣는다.
-
-5. 모든 점을 훑었다면 반복문을 종료한다. 그렇지 않을 경우 2번으로 돌아간다.
-
-6. 스택에 남아 있는 점들이 반시계 방향 순서로 볼록 껍질을 이룬다.
-	 *
-	 *
-	 */
+		hull.push_back(sorted[i].second);
+		n++;
+	}
 
 	return;
 }
 
+bool isInside(vector2 q, const vector<vector2>& p) {
+
+	int crosses = 0;
+
+	for (int i = 0; i < p.size(); i++) {
+
+		int j = (i + 1) % p.size();
+
+		if ((p[i].y > q.y) != (p[j].y > q.y)) {
+			double atX = (p[j].x - p[i].x) * (q.y - p[i].y) / (p[j].y - p[i].y) + p[i].x;
+			if (q.x < atX) crosses++;
+		}
+	}
+
+	return crosses % 2 > 0;
+}
+
+void swap(vector2& a, vector2& b) {
+	vector2 t = a;
+	a = b;
+	b = t;
+}
+
+bool segmentIntersects(vector2 a, vector2 b, vector2 c, vector2 d) {
+
+	double ab = ccw(a, b, c) * ccw(a, b, d);
+	double cd = ccw(c, d, a) * ccw(c, d, b);
+
+	if (ab == 0 && cd == 0) {
+		if (b < a) swap(a, b);
+		if (d < c) swap(c, d);
+		return !(b < c || d < a);
+	}
+
+	return ab <= 0 && cd <= 0;
+}
 
 
+bool polygonIntersects(const vector<vector2>& p, const vector<vector2>& q) {
 
+	int n = p.size(), m = q.size();
+
+	if (isInside(p[0], q) || isInside(q[0], p)) return true;
+
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			if (segmentIntersects(p[i], p[(i + 1) % n], q[j], q[(j + 1) % m]))
+				return true;
+
+	return false;
+}
