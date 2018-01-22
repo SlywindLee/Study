@@ -24,6 +24,7 @@ int solveCircular(vector< pair<double, double> >& ranges);
 
 /* Main */
 
+/*
 int main(){
 
 	int c; cin >> c;
@@ -58,6 +59,7 @@ int main(){
 
 	return 0;
 }
+*/
 
 /* Functions */
 
