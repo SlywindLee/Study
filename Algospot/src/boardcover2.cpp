@@ -20,33 +20,52 @@ int H, W, R, C;
 char board[BOARDSIZE][BOARDSIZE], ablock[2][BOARDSIZE][BOARDSIZE];
 vector< vector< pair<int, int> > > blocks;
 
+
+int cur, maxv, empty, volumn;
+
+
+// prototypes
+
+
 void swap(int& a, int& b);
 void saveBlock(size_t n);
 void makePossibleBlock();
 
 bool isAvailableLoc(int x, int y, int b);
+void tryCoordinate(int x, int y);
+int solve();
 
 // main
 
 int main(){
 
-	// get inputs
+	int c; cin >> c;
 
-	cin >> H >> W >> R >> C;
+	while(c-- > 0){
+		blocks.clear();
 
-	H--; W--; R--; C--;
+		// get inputs
 
-	for(int i = 0; i <= H; i++)
-		cin >> board[i];
+		cin >> H >> W >> R >> C;
 
-	for(int i = 0; i <= R; i++)
-		cin >> ablock[0][i];
+		H--; W--; R--; C--;
 
-	// pre-calc
+		for(int i = 0; i <= H; i++)
+			cin >> board[i];
 
-	blocks.clear();
+		for(int i = 0; i <= R; i++)
+			cin >> ablock[0][i];
 
-	makePossibleBlock();
+		// pre-calc
+
+		blocks.clear();
+
+		makePossibleBlock();
+
+		// solve
+
+		cout << solve() << endl;
+	}
 
 	return 0;
 }
@@ -132,18 +151,79 @@ bool isAvailableLoc(int x, int y, int b){
 
 	// b : block num
 
-	for(int i = 0; i < blocks[b].size(); i++)
+	for(size_t i = 0; i < blocks[b].size(); i++){
+		int xx = x + blocks[b][i].first; int yy = y + blocks[b][i].second;
+		if(xx < 0 || xx > H || yy < 0 || yy > W) return false;
 		if(board[x + blocks[b][i].first][y + blocks[b][i].second] == '#') return false;
+	}
 
 	return true;
 }
 
 void convertBoardStatus(int x, int y, int b, char status){
 
-	for(int i = 0; i < blocks[b].size(); i++)
+	for(size_t i = 0; i < blocks[b].size(); i++)
 		board[x + blocks[b][i].first][y + blocks[b][i].second] = status;
 
 	return;
 }
 
+//
 
+void tryCoordinate(int x, int y){
+
+	// pruning
+	if((empty / volumn) + cur <= maxv) return;
+
+
+	int nextx = x, nexty = y + 1;
+	if(nexty > W){
+		nexty = 0; nextx++;
+	}
+
+	if(nextx > H) return;
+
+
+	for(size_t i = 0; i < blocks.size(); i++)
+		if(isAvailableLoc(x, y, i)){
+
+			convertBoardStatus(x, y, i, '#');
+
+			// update
+			cur++;
+			empty-=volumn;
+			maxv = (cur > maxv) ? cur : maxv;
+
+			// try
+			tryCoordinate(nextx, nexty);
+
+			// restore
+			convertBoardStatus(x, y, i, '.');
+			cur--;
+			empty+=volumn;
+		}
+
+	tryCoordinate(nextx, nexty);
+
+	return;
+}
+
+
+int solve(){
+
+	// init global vars
+
+	maxv = 0; empty = 0;
+
+	for(int i = 0; i <= H; i++)
+		for(int j = 0; j <= W; j++)
+			if(board[i][j] == '.') empty++;
+
+	volumn = blocks[0].size();
+
+	// solve
+
+	tryCoordinate(0, 0);
+
+	return maxv;
+}
