@@ -24,6 +24,8 @@ void swap(int& a, int& b);
 void saveBlock(size_t n);
 void makePossibleBlock();
 
+bool isAvailableLoc(int x, int y, int b);
+
 // main
 
 int main(){
@@ -46,8 +48,6 @@ int main(){
 
 	makePossibleBlock();
 
-	cout << blocks.size() << endl;
-
 	return 0;
 }
 
@@ -59,8 +59,6 @@ void swap(int& a, int& b){
 
 void saveBlock(size_t n){
 
-	cout << n << endl;
-
 	vector< pair<int, int> > b;
 
 	// convert to coordinate using base point(left-upper)
@@ -68,16 +66,12 @@ void saveBlock(size_t n){
 	int x = -1, y = -1;
 
 	for(int i = 0; i <= R; i++){
-		for(int j = 0; j <= C; j++){
-
-			cout << ablock[n][i][j];
-
+		for(int j = 0; j <= C; j++)
 			if(ablock[n][i][j] == '#'){
 				if(x < 0){ x = i; y = j; b.push_back(make_pair(0, 0)); continue; }
 				b.push_back(make_pair(i - x, j - y));
 			}
-		}
-		cout << endl;
+
 	}
 	// push
 
@@ -128,6 +122,26 @@ void makePossibleBlock(){
 		blocks.erase(blocks.begin() + d.top());
 		d.pop();
 	}
+
+	return;
+}
+
+//
+
+bool isAvailableLoc(int x, int y, int b){
+
+	// b : block num
+
+	for(int i = 0; i < blocks[b].size(); i++)
+		if(board[x + blocks[b][i].first][y + blocks[b][i].second] == '#') return false;
+
+	return true;
+}
+
+void convertBoardStatus(int x, int y, int b, char status){
+
+	for(int i = 0; i < blocks[b].size(); i++)
+		board[x + blocks[b][i].first][y + blocks[b][i].second] = status;
 
 	return;
 }
