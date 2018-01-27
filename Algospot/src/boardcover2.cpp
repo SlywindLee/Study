@@ -1,229 +1,198 @@
-/*
- * boardcover2.cpp
- *
- *  Created on: 2018. 1. 22.
- *      Author: slywind
- */
-
-
 #include <iostream>
+#include <string>
 #include <vector>
-#include <stack>
 #include <utility>
-#define BOARDSIZE 10
+#include <algorithm>
+#include <cstring>
 
 using namespace std;
 
-// global variables
+// Block
 
-int H, W, R, C;
-char board[BOARDSIZE][BOARDSIZE], ablock[2][BOARDSIZE][BOARDSIZE];
-vector< vector< pair<int, int> > > blocks;
+vector< vector< pair<int, int> > > rotations;
+int blockSize;
+
+// Board
+
+int boardH, boardW;
+vector<string> board;
+
+int covered[10][10];
+int best, emptyCell;
 
 
-int cur, maxv, empty, volumn;
+// 전처리
+
+vector<string> rotate(const vector<string>& arr) {
+
+	vector<string> ret(arr[0].size(), string(arr.size(), ' '));
+
+	for (int i = 0; i < arr.size(); i++)
+		for (int j = 0; j < arr[0].size(); j++)
+			ret[j][arr.size() - i - 1] = arr[i][j];
+
+	return ret;
+}
+
+void generateRotations(vector<string> block) {
+
+	rotations.clear();
+	rotations.resize(4);
+
+	for (int rot = 0; rot < 4; rot++) {
+
+		int originY = -1, originX = -1;
+		for (int i = 0; i < block.size(); i++)
+			for(int j = 0; j < block[i].size(); j++)
+				if (block[i][j] == '#') {
+
+					if (originY == -1) {
+						originY = i;
+						originX = j;
+					}
+
+					rotations[rot].push_back(make_pair(i - originY, j - originX));
+				}
+
+		block = rotate(block);
+	}
+
+	// 중복 제거
+
+	sort(rotations.begin(), rotations.end());
+	rotations.erase(unique(rotations.begin(), rotations.end()), rotations.end());
+
+	blockSize = rotations[0].size();
+
+	return;
+}
+
+bool set(int y, int x, const vector< pair<int, int> >& block, int delta) {
+
+	bool ret = true;
+	int nextY, nextX;
+
+	if (delta < 0) {
+		for (int i = 0; i < blockSize; i++) {
+			nextY = y + block[i].first; nextX = x + block[i].second;
+			if((nextY > -1 && nextY < boardH) && (nextX > -1 && nextX < boardW))
+				covered[nextY][nextX]--;
+		}
+	}
+	else {
+		for (int i = 0; i < blockSize; i++) {
+			nextY = y + block[i].first; nextX = x + block[i].second;
+			if ((nextY > -1 && nextY < boardH) && (nextX > -1 && nextX < boardW)) {
+				if (covered[nextY][nextX] > 0) ret = false;
+				covered[nextY][nextX]++;
+			}
+			else ret = false;
+		}
+	}
+
+	return ret;
+}
+
+void search(int placed) {
+
+	int y = -1, x = -1;
+
+	//
+
+	for (int i = 0; i < boardH; i++) {
+		for(int j = 0; j < boardW; j++)
+			if (covered[i][j] == 0) {
+				y = i;
+				x = j;
+				break;
+			}
+		if (y != -1) break;
+	}
+
+	//
+
+	if (y == -1) {
+		best = (placed > best) ? placed : best;
+		return;
+	}
+
+	if (placed + (emptyCell / blockSize) < best)
+		return;
+
+	//
+
+	emptyCell -= blockSize;
+	for (int i = 0; i < rotations.size(); i++) {
+		if (set(y, x, rotations[i], 1))
+			search(placed + 1);
+		set(y, x, rotations[i], -1);
+	}
+	emptyCell += blockSize;
+
+	//
+
+	covered[y][x] = 1;
+	emptyCell--;
+	search(placed);
+	covered[y][x] = 0;
+	emptyCell++;
+
+	return;
+}
+
+int solve() {
+
+	best = 0;
+	emptyCell = boardH * boardW;
+
+	for (int i = 0; i < boardH; i++) {
+		for (int j = 0; j < boardW; j++) {
+			covered[i][j] = 0;
+			if (board[i][j] == '#') {
+				covered[i][j] = 1;
+				emptyCell--;
+			}
+		}
+	}
+
+	search(0);
+
+	return best;
+}
 
 
-// prototypes
-
-
-void swap(int& a, int& b);
-void saveBlock(size_t n);
-void makePossibleBlock();
-
-bool isAvailableLoc(int x, int y, int b);
-void tryCoordinate(int x, int y);
-int solve();
-
-// main
-
-int main(){
+int main() {
 
 	int c; cin >> c;
 
-	while(c-- > 0){
-		blocks.clear();
+	while (c-- > 0) {
 
-		// get inputs
+		string str;
+		vector<string> block;
+		int R, C;
 
-		cin >> H >> W >> R >> C;
+		cin >> boardH >> boardW >> R >> C;
 
-		H--; W--; R--; C--;
+		board.clear();
+		for (int i = 0; i < boardH; i++) {
+			cin >> str;
+			board.push_back(str);
+		}
 
-		for(int i = 0; i <= H; i++)
-			cin >> board[i];
+		for (int i = 0; i < R; i++) {
+			cin >> str;
+			block.push_back(str);
+		}
 
-		for(int i = 0; i <= R; i++)
-			cin >> ablock[0][i];
+		// 전처리
 
-		// pre-calc
+		generateRotations(block);
 
-		blocks.clear();
-
-		makePossibleBlock();
-
-		// solve
+		// Solve
 
 		cout << solve() << endl;
+
 	}
 
 	return 0;
-}
-
-// functions
-
-void swap(int& a, int& b){
-	int t = a; a = b; b = t;
-}
-
-void saveBlock(size_t n){
-
-	vector< pair<int, int> > b;
-
-	// convert to coordinate using base point(left-upper)
-
-	int x = -1, y = -1;
-
-	for(int i = 0; i <= R; i++){
-		for(int j = 0; j <= C; j++)
-			if(ablock[n][i][j] == '#'){
-				if(x < 0){ x = i; y = j; b.push_back(make_pair(0, 0)); continue; }
-				b.push_back(make_pair(i - x, j - y));
-			}
-
-	}
-	// push
-
-	blocks.push_back(b);
-
-	return;
-}
-
-void makePossibleBlock(){
-
-	// save
-
-	saveBlock(0);
-
-	// rotate & save
-
-	for(int n = 0; n < 3; n++){
-
-		// rotate
-
-		for(int i = 0; i <= R; i++)
-			for(int j = 0; j <= C; j++)
-				ablock[(n + 1) % 2][C - j][i] = ablock[n % 2][i][j];
-
-		swap(R, C);
-
-		// save
-
-		saveBlock((n + 1) % 2);
-	}
-
-	// eliminate dulplicates
-
-	stack<int> d;
-
-	for(int i = 1; i <= 3; i++)
-		for(int j = 0; j < i; j++){
-
-			bool same = true;
-
-			for(size_t k = 0; k < blocks[i].size(); k++)
-				if(blocks[i][k] != blocks[j][k]){ same = false; break;}
-
-			if(same){ d.push(i); break; }
-		}
-
-	while(!d.empty()){
-		blocks.erase(blocks.begin() + d.top());
-		d.pop();
-	}
-
-	return;
-}
-
-//
-
-bool isAvailableLoc(int x, int y, int b){
-
-	// b : block num
-
-	for(size_t i = 0; i < blocks[b].size(); i++){
-		int xx = x + blocks[b][i].first; int yy = y + blocks[b][i].second;
-		if(xx < 0 || xx > H || yy < 0 || yy > W) return false;
-		if(board[x + blocks[b][i].first][y + blocks[b][i].second] == '#') return false;
-	}
-
-	return true;
-}
-
-void convertBoardStatus(int x, int y, int b, char status){
-
-	for(size_t i = 0; i < blocks[b].size(); i++)
-		board[x + blocks[b][i].first][y + blocks[b][i].second] = status;
-
-	return;
-}
-
-//
-
-void tryCoordinate(int x, int y){
-
-	// pruning
-	if((empty / volumn) + cur <= maxv) return;
-
-
-	int nextx = x, nexty = y + 1;
-	if(nexty > W){
-		nexty = 0; nextx++;
-	}
-
-	if(nextx > H) return;
-
-
-	for(size_t i = 0; i < blocks.size(); i++)
-		if(isAvailableLoc(x, y, i)){
-
-			convertBoardStatus(x, y, i, '#');
-
-			// update
-			cur++;
-			empty-=volumn;
-			maxv = (cur > maxv) ? cur : maxv;
-
-			// try
-			tryCoordinate(nextx, nexty);
-
-			// restore
-			convertBoardStatus(x, y, i, '.');
-			cur--;
-			empty+=volumn;
-		}
-
-	tryCoordinate(nextx, nexty);
-
-	return;
-}
-
-
-int solve(){
-
-	// init global vars
-
-	maxv = 0; empty = 0;
-
-	for(int i = 0; i <= H; i++)
-		for(int j = 0; j <= W; j++)
-			if(board[i][j] == '.') empty++;
-
-	volumn = blocks[0].size();
-
-	// solve
-
-	tryCoordinate(0, 0);
-
-	return maxv;
 }
