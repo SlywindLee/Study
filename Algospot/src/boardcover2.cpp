@@ -160,7 +160,7 @@ int solve() {
 	return best;
 }
 
-
+/*
 int main() {
 
 	int c; cin >> c;
@@ -196,3 +196,5 @@ int main() {
 
 	return 0;
 }
+
+*/
